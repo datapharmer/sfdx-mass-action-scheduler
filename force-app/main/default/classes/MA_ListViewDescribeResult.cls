@@ -1,14 +1,14 @@
 /**
  * Author: Doug Ayers
  * Website: https://douglascayers.com
- * GitHub: https://github.com/DouglasCAyers/sfdx-mass-action-scheduler
+ * GitHub: https://github.com/douglascayers-org/sfdx-mass-action-scheduler
  * License: BSD 3-Clause License
  */
 /*
  * Represents some parts of a JSON response from List View REST API.
  * "/services/data/<version>/sobjects/<sobjectName>/listviews/<listViewId>/describe"
  */
-public class MA_ListViewDescribeResult {
+public inherited sharing class MA_ListViewDescribeResult {
 
     public ID id { get; set; }
 
@@ -17,6 +17,10 @@ public class MA_ListViewDescribeResult {
     public String sobjectType { get; set; }
 
     public List<Map<String, String>> columns { get; set; }
+
+    public MA_ListViewDescribeResult() {
+        this.columns = new List<Map<String, String>>();
+    }
 
     /**
      * Extract a list of single property from the columns map.
@@ -38,7 +42,7 @@ public class MA_ListViewDescribeResult {
 /*
 BSD 3-Clause License
 
-Copyright (c) 2017, Doug Ayers, douglascayers.com
+Copyright (c) 2017-2019, Doug Ayers, douglascayers.com
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

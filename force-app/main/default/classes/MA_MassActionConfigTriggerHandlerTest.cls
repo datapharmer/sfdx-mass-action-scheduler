@@ -1,7 +1,7 @@
 /**
  * Author: Doug Ayers
  * Website: https://douglascayers.com
- * GitHub: https://github.com/DouglasCAyers/sfdx-mass-action-scheduler
+ * GitHub: https://github.com/douglascayers-org/sfdx-mass-action-scheduler
  * License: BSD 3-Clause License
  */
 @IsTest
@@ -10,11 +10,12 @@ private class MA_MassActionConfigTriggerHandlerTest {
     @IsTest
     static void test_insert() {
 
-        String objectName = MA_MassActionUtils.NAMESPACE_API + 'Mass_Action_Configuration__c';
+        String objectName = MA_NamespaceUtils.NAMESPACE_API + 'Mass_Action_Configuration__c';
         ListView lv = [ SELECT Id, Name, DeveloperName, SobjectType FROM ListView WHERE DeveloperName = 'All' AND SobjectType = :objectName AND IsSoqlCompatible = true LIMIT 1 ];
 
         Mass_Action_Configuration__c activeConfig = new Mass_Action_Configuration__c(
-            Name = 'Test Config',
+            Name = 'Test Config 1',
+            DeveloperName__c = 'Test_Config1',
             Named_Credential__c = 'Mass_Action_Test_Named_Credential',
             Active__c = true,
             Batch_Size__c = 200,
@@ -28,7 +29,8 @@ private class MA_MassActionConfigTriggerHandlerTest {
         );
 
         Mass_Action_Configuration__c inactiveConfig = new Mass_Action_Configuration__c(
-            Name = 'Test Config',
+            Name = 'Test Config 2',
+            DeveloperName__c = 'Test_Config2',
             Named_Credential__c = 'Mass_Action_Test_Named_Credential',
             Active__c = false,
             Batch_Size__c = 200,
@@ -41,29 +43,52 @@ private class MA_MassActionConfigTriggerHandlerTest {
             Schedule_Cron__c = '0 0 1 * * ?'
         );
 
-        Test.setMock( HttpCalloutMock.class, new MA_InvokeActionHttpRequestMock() );
+        Test.setMock( HttpCalloutMock.class, new MA_HttpCalloutMock() );
 
         Test.startTest();
 
-        insert activeConfig;
-        System.debug( [ SELECT Id, Name FROM CronJobDetail ] );
-        System.assertEquals( 1, [ SELECT count() FROM CronJobDetail WHERE Name LIKE :('%' + activeConfig.Id) ] );
+        insert activeConfig;    // should publish event to schedule job
 
-        insert inactiveConfig;
-        System.assertEquals( 0, [ SELECT count() FROM CronJobDetail WHERE Name LIKE :('%' + inactiveConfig.Id) ] );
+        System.debug( [ SELECT Id, Name FROM CronJobDetail ] ); // remove if emitting platform events for scheduling
+        System.assertEquals( 1, [ SELECT COUNT() FROM CronJobDetail WHERE Name LIKE :('%' + activeConfig.Id) ] );
+
+        insert inactiveConfig;  // since inactive, should NOT publish an event
+
+        System.debug( [ SELECT Id, Name FROM CronJobDetail ] ); // remove if emitting platform events for scheduling
+        System.assertEquals( 0, [ SELECT COUNT() FROM CronJobDetail WHERE Name LIKE :('%' + inactiveConfig.Id) ] );
 
         Test.stopTest();
+
+        /*
+         * 1/1/2019, I switched from emitting platform events in the trigger to schedule jobs.
+         * See MA_EditConfigCmpHelper.saveRecordAsync for full details.
+         */
+
+        /*
+        List<EventBusSubscriber> eventBusSubscribers = new List<EventBusSubscriber>([
+            SELECT
+                Name, Status, Position, Type, Topic
+            FROM
+                EventBusSubscriber
+            WHERE
+                Name = 'MA_JobChangeEventTrigger'
+            LIMIT 1
+        ]);
+
+        System.assertEquals( 1, eventBusSubscribers[0].Position );
+        */
 
     }
 
     @IsTest
     static void test_update() {
 
-        String objectName = MA_MassActionUtils.NAMESPACE_API + 'Mass_Action_Configuration__c';
+        String objectName = MA_NamespaceUtils.NAMESPACE_API + 'Mass_Action_Configuration__c';
         ListView lv = [ SELECT Id, Name, DeveloperName, SobjectType FROM ListView WHERE DeveloperName = 'All' AND SobjectType = :objectName AND IsSoqlCompatible = true LIMIT 1 ];
 
         Mass_Action_Configuration__c config = new Mass_Action_Configuration__c(
             Name = 'Test Config',
+            DeveloperName__c = 'Test_Config',
             Named_Credential__c = 'Mass_Action_Test_Named_Credential',
             Active__c = false,
             Batch_Size__c = 200,
@@ -81,22 +106,47 @@ private class MA_MassActionConfigTriggerHandlerTest {
             Schedule_DayOfWeek__c = '?'
         );
 
-        Test.setMock( HttpCalloutMock.class, new MA_InvokeActionHttpRequestMock() );
+        Test.setMock( HttpCalloutMock.class, new MA_HttpCalloutMock() );
 
         Test.startTest();
 
-        insert config;
-        System.assertEquals( 0, [ SELECT count() FROM CronJobDetail WHERE Name LIKE :('%' + config.Id) ] );
+        insert config; // since inactive, should NOT publish event to schedule job
+
+        System.debug( [ SELECT Id, Name FROM CronJobDetail ] ); // remove if emitting platform events for scheduling
+        System.assertEquals( 0, [ SELECT COUNT() FROM CronJobDetail WHERE Name LIKE :('%' + config.Id) ] );
 
         config.Active__c = true;
-        update config;
-        System.assertEquals( 1, [ SELECT count() FROM CronJobDetail WHERE Name LIKE :('%' + config.Id) ] );
+        update config; // since active, should publish event to unschedule old job and schedule new job
+
+        System.debug( [ SELECT Id, Name FROM CronJobDetail ] ); // remove if emitting platform events for scheduling
+        System.assertEquals( 1, [ SELECT COUNT() FROM CronJobDetail WHERE Name LIKE :('%' + config.Id) ] );
 
         config.Active__c = false;
-        update config;
-        System.assertEquals( 0, [ SELECT count() FROM CronJobDetail WHERE Name LIKE :('%' + config.Id) ] );
+        update config; // since inactive, should publish event to unschedule job
+
+        System.debug( [ SELECT Id, Name FROM CronJobDetail ] ); // remove if emitting platform events for scheduling
+        System.assertEquals( 0, [ SELECT COUNT() FROM CronJobDetail WHERE Name LIKE :('%' + config.Id) ] );
 
         Test.stopTest();
+
+        /*
+         * 1/1/2019, I switched from emitting platform events in the trigger to schedule jobs.
+         * See MA_EditConfigCmpHelper.saveRecordAsync for full details.
+         */
+
+        /*
+        List<EventBusSubscriber> eventBusSubscribers = new List<EventBusSubscriber>([
+            SELECT
+                Name, Status, Position, Type, Topic
+            FROM
+                EventBusSubscriber
+            WHERE
+                Name = 'MA_JobChangeEventTrigger'
+            LIMIT 1
+        ]);
+
+        System.assertEquals( 3, eventBusSubscribers[0].Position );
+        */
 
     }
 
@@ -106,7 +156,8 @@ private class MA_MassActionConfigTriggerHandlerTest {
         Test.startTest();
 
         Mass_Action_Configuration__c config = new Mass_Action_Configuration__c(
-            name = 'Test'
+            Name = 'Test Config',
+            DeveloperName__c = 'Test_Config'
         );
 
         insert config;
@@ -123,7 +174,7 @@ private class MA_MassActionConfigTriggerHandlerTest {
 /*
 BSD 3-Clause License
 
-Copyright (c) 2017, Doug Ayers, douglascayers.com
+Copyright (c) 2017-2019, Doug Ayers, douglascayers.com
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

@@ -18,6 +18,29 @@
     </flexiPageRegions>
     <flexiPageRegions>
         <componentInstances>
+            <componentInstanceProperties>
+                <name>decorate</name>
+                <value>true</value>
+            </componentInstanceProperties>
+            <componentInstanceProperties>
+                <name>richTextValue</name>
+                <value>&lt;span style=&quot;font-size:14px;&quot;&gt;&lt;span style=&quot;color:#B22222;&quot;&gt;&amp;nbsp; &amp;nbsp;Please use the&amp;nbsp;&lt;b&gt;Configure&lt;/b&gt;&amp;nbsp;tab to edit this record. Editing the record directly may cause errors or inability to run the configuration.&amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;/span&gt;</value>
+            </componentInstanceProperties>
+            <componentName>flexipage:richText</componentName>
+        </componentInstances>
+        <componentInstances>
+            <componentInstanceProperties>
+                <name>relatedListComponentOverride</name>
+                <value>ADVGRID</value>
+            </componentInstanceProperties>
+            <componentInstanceProperties>
+                <name>rowsToDisplay</name>
+                <value>10</value>
+            </componentInstanceProperties>
+            <componentInstanceProperties>
+                <name>showActionBar</name>
+                <value>true</value>
+            </componentInstanceProperties>
             <componentName>force:relatedListContainer</componentName>
         </componentInstances>
         <mode>Replace</mode>
@@ -25,6 +48,17 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <componentInstances>
+            <componentInstanceProperties>
+                <name>decorate</name>
+                <value>true</value>
+            </componentInstanceProperties>
+            <componentInstanceProperties>
+                <name>richTextValue</name>
+                <value>&lt;div&gt;&lt;span style=&quot;font-size:14px;&quot;&gt;&lt;span style=&quot;color:#B22222;&quot;&gt;&amp;nbsp; &amp;nbsp;Please use the&amp;nbsp;&lt;b&gt;Configure&lt;/b&gt;&amp;nbsp;tab to edit this record. Editing the record directly may cause errors or inability to run the configuration.&amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;</value>
+            </componentInstanceProperties>
+            <componentName>flexipage:richText</componentName>
+        </componentInstances>
         <componentInstances>
             <componentName>force:detailPanel</componentName>
         </componentInstances>
@@ -109,7 +143,15 @@
             </componentInstanceProperties>
             <componentInstanceProperties>
                 <name>relatedListComponentOverride</name>
-                <value>NONE</value>
+                <value>ADVGRID</value>
+            </componentInstanceProperties>
+            <componentInstanceProperties>
+                <name>rowsToDisplay</name>
+                <value>10</value>
+            </componentInstanceProperties>
+            <componentInstanceProperties>
+                <name>showActionBar</name>
+                <value>true</value>
             </componentInstanceProperties>
             <componentName>force:relatedListSingleContainer</componentName>
         </componentInstances>

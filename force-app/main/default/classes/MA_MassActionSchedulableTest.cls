@@ -1,7 +1,7 @@
 /**
  * Author: Doug Ayers
  * Website: https://douglascayers.com
- * GitHub: https://github.com/DouglasCAyers/sfdx-mass-action-scheduler
+ * GitHub: https://github.com/douglascayers-org/sfdx-mass-action-scheduler
  * License: BSD 3-Clause License
  */
 @IsTest
@@ -10,11 +10,12 @@ private class MA_MassActionSchedulableTest {
     @IsTest
     static void test_schedule_listview() {
 
-        String objectName = MA_MassActionUtils.NAMESPACE_API + 'Mass_Action_Configuration__c';
+        String objectName = MA_NamespaceUtils.NAMESPACE_API + 'Mass_Action_Configuration__c';
         ListView lv = [ SELECT Id, Name, DeveloperName, SobjectType FROM ListView WHERE DeveloperName = 'All' AND SobjectType = :objectName AND IsSoqlCompatible = true LIMIT 1 ];
 
         Mass_Action_Configuration__c config = new Mass_Action_Configuration__c(
             Name = 'Test Config',
+            DeveloperName__c = 'Test_Config',
             Named_Credential__c = 'Mass_Action_Test_Named_Credential',
             Active__c = true,
             Batch_Size__c = 200,
@@ -34,7 +35,7 @@ private class MA_MassActionSchedulableTest {
 
         insert configFieldMapping;
 
-        Test.setMock( HttpCalloutMock.class, new MA_InvokeActionHttpRequestMock() );
+        Test.setMock( HttpCalloutMock.class, new MA_HttpCalloutMock() );
 
         Test.startTest();
 
@@ -58,6 +59,7 @@ private class MA_MassActionSchedulableTest {
 
         Mass_Action_Configuration__c config = new Mass_Action_Configuration__c(
             Name = 'Test Config',
+            DeveloperName__c = 'Test_Config',
             Named_Credential__c = 'Mass_Action_Test_Named_Credential',
             Active__c = true,
             Batch_Size__c = 200,
@@ -78,7 +80,7 @@ private class MA_MassActionSchedulableTest {
 
         insert configFieldMapping;
 
-        Test.setMock( HttpCalloutMock.class, new MA_InvokeActionHttpRequestMock() );
+        Test.setMock( HttpCalloutMock.class, new MA_HttpCalloutMock() );
 
         Test.startTest();
 
@@ -92,7 +94,7 @@ private class MA_MassActionSchedulableTest {
 /*
 BSD 3-Clause License
 
-Copyright (c) 2017, Doug Ayers, douglascayers.com
+Copyright (c) 2017-2019, Doug Ayers, douglascayers.com
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

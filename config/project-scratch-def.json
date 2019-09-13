@@ -1,7 +1,19 @@
 {
-    "orgName": "Demo Company",
-    "edition": "Developer",
-    "orgPreferences" : {
-        "enabled": ["S1DesktopEnabled"]
+    "orgName" : "Mass Action Scheduler",
+    "edition" : "Enterprise",
+    "hasSampleData" : false,
+    "features" : [],
+    "settings" : {
+        "orgPreferenceSettings" : {
+            "s1EncryptedStoragePref2" : false
+        },
+        "securitySettings" : {
+            "sessionSettings" : {
+                "lockerServiceCSP" : true,
+                "lockerServiceFrozenRealm" : true,
+                "enableClickjackNonsetupUser" : false,
+                "enableClickjackNonsetupUserHeaderless" : false
+            }
+        }
     }
 }
